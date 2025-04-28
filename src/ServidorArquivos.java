@@ -9,14 +9,17 @@ public class ServidorArquivos {
     private static final Map<String, String> usuarios = new HashMap<>();
 
     public static void main(String[] args) {
+        // Define usuários e senhas válidas
         usuarios.put("deivid", "senha123");
         usuarios.put("santos", "senha123");
 
         try (ServerSocket servidor = new ServerSocket(PORTA)) {
             System.out.println("Servidor iniciado na porta " + PORTA);
 
+            // Aceita conexões de clientes de forma contínua
             while (true) {
                 Socket cliente = servidor.accept();
+                // Cria uma thread para tratar cada cliente individualmente
                 new Thread(() -> trataCliente(cliente)).start();
             }
         } catch (IOException e) {
@@ -24,22 +27,28 @@ public class ServidorArquivos {
         }
     }
 
+    // Trata a comunicação de um cliente conectado
     private static void trataCliente(Socket cliente) {
         try (
                 DataInputStream in = new DataInputStream(cliente.getInputStream());
                 DataOutputStream out = new DataOutputStream(cliente.getOutputStream())
         ) {
+            // Recebe usuário e senha
             String usuario = in.readUTF();
             String senha = in.readUTF();
 
+            // Verifica autenticação
             if (!usuarios.containsKey(usuario) || !usuarios.get(usuario).equals(senha)) {
                 out.writeUTF("ERRO");
                 return;
             }
 
             out.writeUTF("OK");
+
+            // Garante que as pastas do usuário existam
             criaPastasUsuario(usuario);
 
+            // Loop para oferecer menu de opções
             while (true) {
                 out.writeUTF("\nMenu:\n1. Listar arquivos\n2. Baixar arquivo\n3. Enviar arquivo\n4. Sair\nDigite sua opção:");
                 String opcao = in.readUTF();
@@ -65,6 +74,7 @@ public class ServidorArquivos {
         }
     }
 
+    // Cria as pastas específicas do usuário se não existirem
     private static void criaPastasUsuario(String usuario) {
         String[] pastas = {"pdf", "jpg", "txt"};
         File dirUsuario = new File(PASTA_BASE, usuario);
@@ -77,6 +87,7 @@ public class ServidorArquivos {
         }
     }
 
+    // Lista os arquivos do usuário organizados por tipo
     private static void listaArquivos(String usuario, DataOutputStream out) throws IOException {
         File dirUsuario = new File(PASTA_BASE, usuario);
         File[] pastas = dirUsuario.listFiles();
@@ -96,6 +107,7 @@ public class ServidorArquivos {
         out.writeUTF(resposta.toString());
     }
 
+    // Envia um arquivo do servidor para o cliente
     private static void baixarArquivo(String usuario, DataInputStream in, DataOutputStream out) throws IOException {
         out.writeUTF("Digite o tipo do arquivo (pdf, jpg, txt):");
         String tipo = in.readUTF();
@@ -121,6 +133,7 @@ public class ServidorArquivos {
         }
     }
 
+    // Recebe um arquivo enviado pelo cliente e salva no servidor
     private static void receberArquivo(String usuario, DataInputStream in, DataOutputStream out) throws IOException {
         out.writeUTF("Digite o tipo do arquivo (pdf, jpg, txt):");
         String tipo = in.readUTF();

@@ -8,6 +8,7 @@ public class ClienteArquivos {
              DataOutputStream out = new DataOutputStream(socket.getOutputStream());
              BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in))) {
 
+            // Solicita usuário e senha
             System.out.println("Digite o usuário:");
             String usuario = consoleIn.readLine();
             out.writeUTF(usuario);
@@ -24,6 +25,7 @@ public class ClienteArquivos {
 
             System.out.println("Login realizado com sucesso!");
 
+            // Loop principal: interage com o menu do servidor
             while (true) {
                 System.out.println(in.readUTF());
                 String opcao = consoleIn.readLine();
@@ -50,6 +52,7 @@ public class ClienteArquivos {
         }
     }
 
+    // Solicita informações e realiza o download de um arquivo do servidor
     private static void baixarArquivo(DataInputStream in, DataOutputStream out, BufferedReader consoleIn) throws IOException {
         System.out.println(in.readUTF());
         String tipo = consoleIn.readLine();
@@ -81,6 +84,7 @@ public class ClienteArquivos {
         System.out.println("Arquivo baixado com sucesso!");
     }
 
+    // Solicita informações e envia um arquivo local para o servidor
     private static void enviarArquivo(DataInputStream in, DataOutputStream out, BufferedReader consoleIn) throws IOException {
         System.out.println(in.readUTF());
         String tipo = consoleIn.readLine();
